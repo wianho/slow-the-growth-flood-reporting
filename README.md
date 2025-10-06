@@ -2,6 +2,8 @@
 
 > Community-driven flood reporting system for Volusia County, Florida
 
+🌐 **Live Application**: [https://stgfloods386.from-fl.com](https://stgfloods386.from-fl.com)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Overview
@@ -28,8 +30,8 @@ To empower communities with real-time flood data, promoting informed decision-ma
 
 ```bash
 # Clone and setup
-git clone https://github.com/slow-the-growth/flood-reporting.git
-cd flood-reporting
+git clone https://github.com/wianho/slow-the-growth-flood-reporting.git
+cd slow-the-growth-flood-reporting
 
 # Start Docker services
 docker compose up -d
@@ -47,7 +49,7 @@ See full installation guide and deployment options in the sections below.
 
 ## Contact
 
-- GitHub: [github.com/slow-the-growth](https://github.com/slow-the-growth)
+- GitHub: [github.com/wianho/slow-the-growth-flood-reporting](https://github.com/wianho/slow-the-growth-flood-reporting)
 
 ---
 
