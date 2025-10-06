@@ -48,6 +48,8 @@ services:
       ROTATION_HOUR: 5
       ROTATION_TZ: America/New_York
       REPORTS_PER_DEVICE_PER_DAY: 3
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
     depends_on:
       postgres:
         condition: service_healthy

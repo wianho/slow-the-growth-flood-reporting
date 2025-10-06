@@ -6,6 +6,7 @@ import { startWeeklyRotation } from './jobs/weeklyRotation';
 import reportsRouter from './routes/reports';
 import dataRouter from './routes/data';
 import verificationRouter from './routes/verification';
+import adminRouter from './routes/admin';
 import logger from './utils/logger';
 
 // Load environment variables
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/reports', reportsRouter);
 app.use('/api/data', dataRouter);
+app.use('/api/admin', adminRouter);
 app.use('/api', verificationRouter);
 
 // Health check
