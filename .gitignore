@@ -54,3 +54,4 @@ redis_data/
 # PWA
 public/sw.js
 public/workbox-*.js
+.env.production
