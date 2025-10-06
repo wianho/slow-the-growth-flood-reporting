@@ -8,29 +8,29 @@ The application is currently deployed at **https://stgfloods386.from-fl.com**
 
 1. **Server**: Hetzner Cloud VPS
 2. **OS**: Ubuntu/Debian
-3. **SSH Access**: `root@178.156.151.63`
+3. **SSH Access**: `root@YOUR_SERVER_IP`
 
 ### Deployment Process
 
 1. **Sync code to production server**:
    ```bash
    # Sync backend changes
-   rsync -avz backend/src/ root@178.156.151.63:/root/slow-the-growth/backend/src/
+   rsync -avz backend/src/ root@YOUR_SERVER_IP:/root/slow-the-growth/backend/src/
 
    # Sync frontend changes
-   rsync -avz frontend/src/ root@178.156.151.63:/root/slow-the-growth/frontend/src/
+   rsync -avz frontend/src/ root@YOUR_SERVER_IP:/root/slow-the-growth/frontend/src/
    ```
 
 2. **Rebuild and restart containers**:
    ```bash
-   ssh root@178.156.151.63 "cd /root/slow-the-growth && \
+   ssh root@YOUR_SERVER_IP "cd /root/slow-the-growth && \
      docker compose -f docker-compose.prod.yml build --no-cache backend frontend && \
      docker compose -f docker-compose.prod.yml up -d backend frontend"
    ```
 
 3. **Full deployment (all services)**:
    ```bash
-   ssh root@178.156.151.63 "cd /root/slow-the-growth && \
+   ssh root@YOUR_SERVER_IP "cd /root/slow-the-growth && \
      docker compose -f docker-compose.prod.yml up -d --build"
    ```
 
@@ -64,20 +64,20 @@ VITE_API_BASE_URL=https://stgfloods386.from-fl.com/api
 
 **Connect to production database**:
 ```bash
-ssh root@178.156.151.63 "docker exec -i slow-the-growth-postgres-1 \
+ssh root@YOUR_SERVER_IP "docker exec -i slow-the-growth-postgres-1 \
   psql -U slowgrowth -d slow_growth_flood"
 ```
 
 **Clear all flood reports**:
 ```bash
-ssh root@178.156.151.63 "docker exec -i slow-the-growth-postgres-1 \
+ssh root@YOUR_SERVER_IP "docker exec -i slow-the-growth-postgres-1 \
   psql -U slowgrowth -d slow_growth_flood \
   -c 'DELETE FROM flood_reports; SELECT COUNT(*) FROM flood_reports;'"
 ```
 
 **Run database migrations**:
 ```bash
-ssh root@178.156.151.63 "docker exec -i slow-the-growth-postgres-1 \
+ssh root@YOUR_SERVER_IP "docker exec -i slow-the-growth-postgres-1 \
   psql -U slowgrowth -d slow_growth_flood < /docker-entrypoint-initdb.d/001_init.sql"
 ```
 
@@ -85,17 +85,17 @@ ssh root@178.156.151.63 "docker exec -i slow-the-growth-postgres-1 \
 
 **View backend logs**:
 ```bash
-ssh root@178.156.151.63 "docker logs slow-the-growth-backend-1 --tail 100 -f"
+ssh root@YOUR_SERVER_IP "docker logs slow-the-growth-backend-1 --tail 100 -f"
 ```
 
 **View nginx logs**:
 ```bash
-ssh root@178.156.151.63 "docker logs slow-the-growth-frontend-1 --tail 100 -f"
+ssh root@YOUR_SERVER_IP "docker logs slow-the-growth-frontend-1 --tail 100 -f"
 ```
 
 **View all service logs**:
 ```bash
-ssh root@178.156.151.63 "cd /root/slow-the-growth && \
+ssh root@YOUR_SERVER_IP "cd /root/slow-the-growth && \
   docker compose -f docker-compose.prod.yml logs -f"
 ```
 
@@ -112,20 +112,20 @@ The production server uses nginx as a reverse proxy with SSL certificates. SSL c
 **Database connection issues**:
 ```bash
 # Check if postgres is running
-ssh root@178.156.151.63 "docker ps | grep postgres"
+ssh root@YOUR_SERVER_IP "docker ps | grep postgres"
 
 # Restart postgres
-ssh root@178.156.151.63 "cd /root/slow-the-growth && \
+ssh root@YOUR_SERVER_IP "cd /root/slow-the-growth && \
   docker compose -f docker-compose.prod.yml restart postgres"
 ```
 
 **Backend not responding**:
 ```bash
 # Check backend status
-ssh root@178.156.151.63 "docker ps | grep backend"
+ssh root@YOUR_SERVER_IP "docker ps | grep backend"
 
 # Rebuild backend
-ssh root@178.156.151.63 "cd /root/slow-the-growth && \
+ssh root@YOUR_SERVER_IP "cd /root/slow-the-growth && \
   docker compose -f docker-compose.prod.yml build --no-cache backend && \
   docker compose -f docker-compose.prod.yml up -d backend"
 ```
