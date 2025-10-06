@@ -63,7 +63,7 @@ export async function getUSGSGauges(): Promise<USGSGauge[]> {
   return response.data.gauges;
 }
 
-export async function deleteReport(reportId: number) {
+export async function deleteReport(reportId: string) {
   const response = await api.delete(`/reports/${reportId}`);
   return response.data;
 }

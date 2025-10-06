@@ -45,7 +45,7 @@ export function ReportList() {
   const handleDelete = (reportId: string) => {
     if (confirm('Are you sure you want to delete this report?')) {
       setDeletingId(reportId);
-      deleteMutation.mutate(parseInt(reportId, 10));
+      deleteMutation.mutate(reportId);
     }
   };
 

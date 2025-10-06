@@ -95,13 +95,13 @@ router.get('/', verifyToken, async (req: AuthRequest, res: Response) => {
 // Delete a flood report
 router.delete('/:id', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
-    const reportId = parseInt(req.params.id, 10);
+    const reportId = req.params.id;
 
     if (!req.deviceFingerprint) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    if (isNaN(reportId)) {
+    if (!reportId) {
       return res.status(400).json({ error: 'Invalid report ID' });
     }
 

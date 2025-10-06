@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tantml:react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { submitReport } from '../../services/api';
 import { useAppStore } from '../../store/appStore';
 import { useRateLimit } from '../../hooks/useRateLimit';

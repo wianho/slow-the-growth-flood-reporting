@@ -109,7 +109,7 @@ export async function getActiveReports(
   };
 }
 
-export async function deleteReport(reportId: number, deviceFingerprint: string): Promise<boolean> {
+export async function deleteReport(reportId: string, deviceFingerprint: string): Promise<boolean> {
   const result = await query(
     `DELETE FROM flood_reports
      WHERE id = $1 AND device_fingerprint = $2
