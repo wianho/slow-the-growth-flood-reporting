@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFloodReports } from '../../hooks/useFloodReports';
 import { SEVERITY_LABELS } from '../../utils/constants';
 import { formatDistanceToNow } from 'date-fns';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { deleteReport } from '../../services/api';
 
 export function ReportList() {
   const { data, isLoading, error } = useFloodReports();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteReport,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['floodReports'] });
+      setDeletingId(null);
+    },
+    onError: () => {
+      alert('Failed to delete report');
+      setDeletingId(null);
+    },
+  });
 
   if (isLoading) {
     return <div className="text-center py-4">Loading reports...</div>;
@@ -26,6 +42,13 @@ export function ReportList() {
     );
   }
 
+  const handleDelete = (reportId: string) => {
+    if (confirm('Are you sure you want to delete this report?')) {
+      setDeletingId(reportId);
+      deleteMutation.mutate(parseInt(reportId, 10));
+    }
+  };
+
   return (
     <div className="space-y-3">
       <h3 className="text-xl font-bold mb-4">Recent Reports</h3>
@@ -45,9 +68,20 @@ export function ReportList() {
                 </p>
               )}
             </div>
-            <span className="text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded">
-              {feature.properties.confidence_score} {feature.properties.confidence_score === 1 ? 'report' : 'reports'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded">
+                {feature.properties.confidence_score} {feature.properties.confidence_score === 1 ? 'report' : 'reports'}
+              </span>
+              {feature.properties.is_own_report && (
+                <button
+                  onClick={() => handleDelete(feature.properties.id)}
+                  disabled={deletingId === feature.properties.id}
+                  className="text-xs text-red-600 hover:text-red-800 px-2 py-1 border border-red-600 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deletingId === feature.properties.id ? 'Deleting...' : 'Delete'}
+                </button>
+              )}
+            </div>
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {formatDistanceToNow(new Date(feature.properties.created_at), {

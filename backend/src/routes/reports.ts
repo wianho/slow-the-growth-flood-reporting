@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { createReport, getActiveReports } from '../models/FloodReport';
+import { createReport, getActiveReports, deleteReport } from '../models/FloodReport';
 import { verifyToken, AuthRequest } from '../middleware/auth';
 import { rateLimitMiddleware } from '../middleware/rateLimit';
 import { validateLocation, validateSeverity } from '../middleware/validation';
@@ -67,7 +67,7 @@ router.post(
 );
 
 // Get active flood reports
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
     const { north, south, east, west, minConfidence } = req.query;
 
@@ -83,11 +83,38 @@ router.get('/', async (req, res) => {
 
     const minConf = minConfidence ? parseInt(minConfidence as string, 10) : undefined;
 
-    const reports = await getActiveReports(bbox, minConf);
+    const reports = await getActiveReports(bbox, minConf, req.deviceFingerprint);
 
     res.json(reports);
   } catch (error) {
     logger.error('Error fetching reports', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete a flood report
+router.delete('/:id', verifyToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const reportId = parseInt(req.params.id, 10);
+
+    if (!req.deviceFingerprint) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    if (isNaN(reportId)) {
+      return res.status(400).json({ error: 'Invalid report ID' });
+    }
+
+    const deleted = await deleteReport(reportId, req.deviceFingerprint);
+
+    if (!deleted) {
+      return res.status(404).json({ error: 'Report not found or not authorized' });
+    }
+
+    logger.info('Report deleted', { reportId, deviceFingerprint: req.deviceFingerprint });
+    res.status(200).json({ message: 'Report deleted successfully' });
+  } catch (error) {
+    logger.error('Error deleting report', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

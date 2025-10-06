@@ -56,10 +56,11 @@ async function getNearbyReportCount(latitude: number, longitude: number): Promis
 
 export async function getActiveReports(
   bbox?: { north: number; south: number; east: number; west: number },
-  minConfidence?: number
+  minConfidence?: number,
+  deviceFingerprint?: string
 ): Promise<GeoJSONFeatureCollection> {
   let queryText = `
-    SELECT id, ST_AsText(location) as location, road_name, severity, created_at, confidence_score
+    SELECT id, ST_AsText(location) as location, road_name, severity, created_at, confidence_score, device_fingerprint
     FROM flood_reports
     WHERE expires_at > NOW()
   `;
@@ -97,6 +98,7 @@ export async function getActiveReports(
         severity: row.severity,
         created_at: row.created_at.toISOString(),
         confidence_score: row.confidence_score,
+        is_own_report: deviceFingerprint ? row.device_fingerprint === deviceFingerprint : false,
       },
     };
   });
@@ -105,6 +107,22 @@ export async function getActiveReports(
     type: 'FeatureCollection',
     features,
   };
+}
+
+export async function deleteReport(reportId: number, deviceFingerprint: string): Promise<boolean> {
+  const result = await query(
+    `DELETE FROM flood_reports
+     WHERE id = $1 AND device_fingerprint = $2
+     RETURNING id`,
+    [reportId, deviceFingerprint]
+  );
+
+  if (result.rowCount === 0) {
+    return false;
+  }
+
+  logger.info('Report deleted by user', { reportId, deviceFingerprint });
+  return true;
 }
 
 export async function archiveExpiredReports(): Promise<number> {

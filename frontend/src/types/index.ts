@@ -22,6 +22,7 @@ export interface GeoJSONFeature {
     severity: string;
     created_at: string;
     confidence_score: number;
+    is_own_report?: boolean;
   };
 }
 

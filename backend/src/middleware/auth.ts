@@ -28,7 +28,8 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
 }
 
 export function generateToken(deviceFingerprint: string): string {
+  // @ts-ignore - JWT type issue with expiresIn
   return jwt.sign({ deviceFingerprint }, JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRY || '24h',
+    expiresIn: '24h',
   });
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tantml:react-query';
 import { submitReport } from '../../services/api';
 import { useAppStore } from '../../store/appStore';
 import { useRateLimit } from '../../hooks/useRateLimit';
@@ -7,7 +7,6 @@ import { validateReportSubmission } from '../../utils/validation';
 
 export function ReportForm() {
   const [severity, setSeverity] = useState<'minor' | 'moderate' | 'severe'>('minor');
-  const [roadName, setRoadName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const { userLocation, isInVolusia } = useAppStore();
@@ -21,7 +20,6 @@ export function ReportForm() {
       if (data.rateLimit) {
         updateRateLimit(data.rateLimit.remaining, data.rateLimit.resetAt);
       }
-      setRoadName('');
       setError(null);
       alert('Report submitted successfully!');
     },
@@ -57,7 +55,6 @@ export function ReportForm() {
     mutation.mutate({
       latitude: userLocation.lat,
       longitude: userLocation.lng,
-      road_name: roadName || undefined,
       severity,
     });
   };
@@ -93,19 +90,6 @@ export function ReportForm() {
             <option value="moderate">Moderate - Difficult to pass</option>
             <option value="severe">Severe - Road closed/impassable</option>
           </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Street/Road Name (Optional)
-          </label>
-          <input
-            type="text"
-            value={roadName}
-            onChange={(e) => setRoadName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            placeholder="e.g., Main Street"
-          />
         </div>
 
         {error && (
