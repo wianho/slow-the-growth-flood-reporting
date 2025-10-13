@@ -1,8 +1,10 @@
 import axios from 'axios';
 import logger from '../utils/logger';
 
-const VOLUSIA_GIS_BASE_URL = 'https://maps1.vcgov.org/arcgis/rest/services';
-const ZONING_SERVICE_URL = `${VOLUSIA_GIS_BASE_URL}/CountywideZoning/MapServer/2`;
+const VOLUSIA_GIS_BASE_URL = 'https://maps5.vcgov.org/arcgis/rest/services';
+const FUTURE_LAND_USE_URL = `${VOLUSIA_GIS_BASE_URL}/Open_Data/Open_Data_2/FeatureServer/32`;
+// Legacy zoning service (less useful for advocacy)
+const ZONING_SERVICE_URL = 'https://maps1.vcgov.org/arcgis/rest/services/CountywideZoning/MapServer/2';
 
 export interface ZoningFeature {
   type: 'Feature';
@@ -28,7 +30,74 @@ export interface ZoningFeatureCollection {
 }
 
 /**
- * Fetch zoning data from Volusia County ArcGIS REST API
+ * Fetch Future Land Use data from Volusia County ArcGIS REST API
+ * Shows PLANNED development, not just current zoning - much better for advocacy!
+ * @param bbox Bounding box [west, south, east, north]
+ * @param landUseTypes Optional array of land use codes to filter
+ * @param maxFeatures Maximum number of features to return (default: 500 for performance)
+ */
+export async function getVolusiaFutureLandUse(
+  bbox?: { west: number; south: number; east: number; north: number },
+  landUseTypes?: string[],
+  maxFeatures: number = 500
+): Promise<ZoningFeatureCollection> {
+  try {
+    // Build query parameters
+    const params: Record<string, any> = {
+      where: '1=1', // Default: return all features
+      outFields: 'OBJECTID,LUCODE,LUNAME,AMEND,PLANNED_COMM,ACTIVITY_CENTER,LOCAL_PLAN_AREAS,last_edited_date',
+      returnGeometry: true,
+      outSR: 4326, // WGS84 coordinate system
+      f: 'geojson',
+      resultRecordCount: maxFeatures, // Limit for performance
+    };
+
+    // Add bounding box filter if provided
+    if (bbox) {
+      params.geometry = `${bbox.west},${bbox.south},${bbox.east},${bbox.north}`;
+      params.geometryType = 'esriGeometryEnvelope';
+      params.spatialRel = 'esriSpatialRelIntersects';
+      params.inSR = 4326;
+    }
+
+    // Add land use type filter if provided
+    if (landUseTypes && landUseTypes.length > 0) {
+      const typeFilter = landUseTypes.map(code => `'${code}'`).join(',');
+      params.where = `LUCODE IN (${typeFilter})`;
+    }
+
+    logger.info('Fetching Volusia Future Land Use data', {
+      bbox,
+      landUseTypes,
+      maxFeatures,
+      url: `${FUTURE_LAND_USE_URL}/query`,
+    });
+
+    const response = await axios.get(`${FUTURE_LAND_USE_URL}/query`, {
+      params,
+      timeout: 30000, // 30 second timeout
+    });
+
+    if (response.data && response.data.features) {
+      logger.info('Successfully fetched Future Land Use data', {
+        featureCount: response.data.features.length,
+      });
+
+      return response.data as ZoningFeatureCollection;
+    }
+
+    throw new Error('Invalid response format from Volusia GIS service');
+  } catch (error: any) {
+    logger.error('Failed to fetch Volusia Future Land Use data', {
+      error: error.message,
+      stack: error.stack,
+    });
+    throw new Error(`Failed to fetch future land use data: ${error.message}`);
+  }
+}
+
+/**
+ * Fetch current zoning data (LEGACY - use Future Land Use for advocacy)
  * @param bbox Bounding box [west, south, east, north]
  * @param zoningTypes Optional array of zoning codes to filter (e.g., ['COM', 'IND'])
  */

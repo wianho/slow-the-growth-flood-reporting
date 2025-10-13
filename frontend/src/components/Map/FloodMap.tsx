@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import { LatLngBounds } from 'leaflet';
 import { FLORIDA_CENTER, MAP_ZOOM } from '../../utils/constants';
 import { ReportMarker } from './ReportMarker';
-import { ZoningOverlay } from './ZoningOverlay';
+import { FutureLandUseOverlay } from './FutureLandUseOverlay';
 import { LayerToggle } from './LayerToggle';
 import { useFloodReports } from '../../hooks/useFloodReports';
 import 'leaflet/dist/leaflet.css';
@@ -31,7 +31,7 @@ function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
 
 export function FloodMap() {
   const { data, isLoading, error } = useFloodReports();
-  const [zoningEnabled, setZoningEnabled] = useState(false);
+  const [futureLandUseEnabled, setFutureLandUseEnabled] = useState(false);
   const [mapBounds, setMapBounds] = useState<LatLngBounds>();
 
   return (
@@ -50,8 +50,8 @@ export function FloodMap() {
 
         <MapBoundsTracker onBoundsChange={setMapBounds} />
 
-        {/* Zoning Overlay (rendered below flood markers) */}
-        <ZoningOverlay bounds={mapBounds} visible={zoningEnabled} />
+        {/* Future Land Use Overlay (rendered below flood markers) */}
+        <FutureLandUseOverlay bounds={mapBounds} visible={futureLandUseEnabled} />
 
         {/* Flood Report Markers (rendered on top) */}
         {data?.features.map((feature) => (
@@ -61,8 +61,8 @@ export function FloodMap() {
 
       {/* Layer Toggle Control */}
       <LayerToggle
-        onZoningToggle={setZoningEnabled}
-        zoningEnabled={zoningEnabled}
+        onFutureLandUseToggle={setFutureLandUseEnabled}
+        futureLandUseEnabled={futureLandUseEnabled}
       />
 
       {isLoading && (

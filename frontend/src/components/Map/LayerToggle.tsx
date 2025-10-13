@@ -3,18 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchZoningTypes, ZoningTypesResponse } from '../../services/gis';
 
 interface LayerToggleProps {
-  onZoningToggle: (enabled: boolean) => void;
-  zoningEnabled: boolean;
+  onFutureLandUseToggle: (enabled: boolean) => void;
+  futureLandUseEnabled: boolean;
 }
 
-export function LayerToggle({ onZoningToggle, zoningEnabled }: LayerToggleProps) {
+export function LayerToggle({ onFutureLandUseToggle, futureLandUseEnabled }: LayerToggleProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const { data: zoningTypes } = useQuery<ZoningTypesResponse>({
-    queryKey: ['zoningTypes'],
-    queryFn: fetchZoningTypes,
-    staleTime: Infinity, // These don't change often
-  });
 
   return (
     <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg z-[1000] max-w-xs">
@@ -42,31 +36,30 @@ export function LayerToggle({ onZoningToggle, zoningEnabled }: LayerToggleProps)
       {/* Collapsible Content */}
       {isExpanded && (
         <div className="px-4 py-3 space-y-3">
-          {/* Zoning Layer Toggle */}
+          {/* Future Land Use Layer Toggle */}
           <div className="space-y-2">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={zoningEnabled}
-                onChange={(e) => onZoningToggle(e.target.checked)}
+                checked={futureLandUseEnabled}
+                onChange={(e) => onFutureLandUseToggle(e.target.checked)}
                 className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
               />
-              <span className="text-sm font-medium text-gray-700">Show Zoning Overlay</span>
+              <span className="text-sm font-medium text-gray-700">Show Planned Development</span>
             </label>
 
-            {/* Zoning Legend */}
-            {zoningEnabled && zoningTypes && (
+            {/* Info Text */}
+            {futureLandUseEnabled && (
               <div className="ml-6 mt-2 space-y-1 text-xs">
-                <p className="font-semibold text-gray-600 mb-1">Zoning Types:</p>
-                {Object.entries(zoningTypes.types).map(([code, info]) => (
-                  <div key={code} className="flex items-center space-x-2">
-                    <div
-                      className="w-4 h-4 border border-gray-300 rounded"
-                      style={{ backgroundColor: info.color }}
-                    ></div>
-                    <span className="text-gray-700">{info.name}</span>
-                  </div>
-                ))}
+                <p className="text-gray-600">
+                  Shows <strong>Future Land Use</strong> designations - where development is PLANNED, not just current zoning.
+                </p>
+                <p className="text-blue-600 font-medium mt-1">
+                  Perfect for advocacy! Shows development pressure in flood-prone areas.
+                </p>
+                <p className="text-gray-500 mt-1">
+                  💡 Zoom in (level 11+) to see detailed land use polygons
+                </p>
               </div>
             )}
           </div>
@@ -93,11 +86,11 @@ export function LayerToggle({ onZoningToggle, zoningEnabled }: LayerToggleProps)
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={zoningEnabled}
-              onChange={(e) => onZoningToggle(e.target.checked)}
+              checked={futureLandUseEnabled}
+              onChange={(e) => onFutureLandUseToggle(e.target.checked)}
               className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
             />
-            <span className="text-sm text-gray-700">Zoning</span>
+            <span className="text-sm text-gray-700">Planned Development</span>
           </label>
         </div>
       )}

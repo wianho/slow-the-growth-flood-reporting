@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { getVolusiaZoning, getZoningAtPoint, ZONING_TYPES } from '../services/volusiaGIS';
+import { getVolusiaZoning, getVolusiaFutureLandUse, getZoningAtPoint, ZONING_TYPES } from '../services/volusiaGIS';
 import logger from '../utils/logger';
 import { rateLimit } from 'express-rate-limit';
 
@@ -15,8 +15,88 @@ const gisLimiter = rateLimit({
 router.use(gisLimiter);
 
 /**
+ * GET /api/gis/future-land-use
+ * Fetch Future Land Use data (shows PLANNED development for advocacy)
+ *
+ * Query params:
+ * - north, south, east, west: bounding box boundaries
+ * - types: comma-separated land use type codes (optional)
+ * - limit: max features to return (default: 500, max: 1000)
+ */
+router.get('/future-land-use', async (req: Request, res: Response) => {
+  try {
+    const { north, south, east, west, types, limit } = req.query;
+
+    // Validate bounding box
+    let bbox: { west: number; south: number; east: number; north: number } | undefined;
+
+    if (north && south && east && west) {
+      bbox = {
+        north: parseFloat(north as string),
+        south: parseFloat(south as string),
+        east: parseFloat(east as string),
+        west: parseFloat(west as string),
+      };
+
+      // Basic validation
+      if (
+        isNaN(bbox.north) || isNaN(bbox.south) ||
+        isNaN(bbox.east) || isNaN(bbox.west) ||
+        bbox.north <= bbox.south || bbox.east <= bbox.west
+      ) {
+        return res.status(400).json({
+          error: 'Invalid bounding box',
+          details: 'Bounding box coordinates must be valid numbers with north > south and east > west',
+        });
+      }
+    }
+
+    // Parse land use types filter
+    let landUseTypes: string[] | undefined;
+    if (types) {
+      landUseTypes = (types as string).split(',').map(t => t.trim().toUpperCase());
+    }
+
+    // Parse limit
+    const maxFeatures = limit ? Math.min(parseInt(limit as string), 1000) : 500;
+
+    logger.info('Fetching Future Land Use data', {
+      bbox,
+      landUseTypes,
+      maxFeatures,
+      ip: req.ip,
+    });
+
+    const fluData = await getVolusiaFutureLandUse(bbox, landUseTypes, maxFeatures);
+
+    res.json({
+      type: 'FeatureCollection',
+      features: fluData.features,
+      metadata: {
+        count: fluData.features.length,
+        bbox,
+        types: landUseTypes,
+        maxFeatures,
+        source: 'Volusia County GIS - Future Land Use (2010 Base + Amendments)',
+        sourceUrl: 'https://maps5.vcgov.org/arcgis/rest/services/Open_Data/Open_Data_2/FeatureServer/32',
+        note: 'Shows planned/designated land use for advocacy - more impactful than current zoning!',
+      },
+    });
+  } catch (error: any) {
+    logger.error('Error fetching Future Land Use data', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({
+      error: 'Failed to fetch Future Land Use data',
+      details: error.message,
+    });
+  }
+});
+
+/**
  * GET /api/gis/zoning
- * Fetch zoning data for a bounding box
+ * Fetch current zoning data for a bounding box (LEGACY - use /future-land-use instead)
  *
  * Query params:
  * - north: northern boundary (latitude)

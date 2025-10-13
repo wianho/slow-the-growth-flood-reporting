@@ -48,7 +48,41 @@ export interface ZoningTypesResponse {
 }
 
 /**
- * Fetch zoning data for a bounding box
+ * Fetch Future Land Use data for a bounding box
+ * Shows PLANNED development - much better for advocacy than current zoning!
+ */
+export async function fetchFutureLandUse(
+  bbox?: { north: number; south: number; east: number; west: number },
+  types?: string[],
+  limit: number = 500
+): Promise<ZoningResponse> {
+  const params = new URLSearchParams();
+
+  if (bbox) {
+    params.append('north', bbox.north.toString());
+    params.append('south', bbox.south.toString());
+    params.append('east', bbox.east.toString());
+    params.append('west', bbox.west.toString());
+  }
+
+  if (types && types.length > 0) {
+    params.append('types', types.join(','));
+  }
+
+  params.append('limit', limit.toString());
+
+  const url = `${API_BASE_URL}/gis/future-land-use?${params.toString()}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Future Land Use data: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch current zoning data for a bounding box (LEGACY - use fetchFutureLandUse instead)
  */
 export async function fetchZoningData(
   bbox?: { north: number; south: number; east: number; west: number },
