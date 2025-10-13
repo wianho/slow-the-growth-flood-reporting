@@ -1,89 +1,23 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { GeoJSON, useMap } from 'react-leaflet';
+import React from 'react';
+import { GeoJSON } from 'react-leaflet';
 import { useQuery } from '@tanstack/react-query';
 import { fetchFutureLandUse, ZoningFeature, ZoningResponse } from '../../services/gis';
-import { LatLngBounds } from 'leaflet';
 
 interface FutureLandUseOverlayProps {
-  bounds?: LatLngBounds;
   visible: boolean;
   filterTypes?: string[];
 }
 
-// Minimum zoom level to show overlay (performance optimization)
-const MIN_ZOOM_LEVEL = 11;
-// Expand fetch area by this factor to reduce refetching on pan
-const FETCH_AREA_MULTIPLIER = 1.5;
-// Debounce delay in ms (reduced for better responsiveness)
-const DEBOUNCE_DELAY = 250;
-
-export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLandUseOverlayProps) {
-  const map = useMap();
-  const [bbox, setBbox] = useState<{ north: number; south: number; east: number; west: number }>();
-  const [currentZoom, setCurrentZoom] = useState(map.getZoom());
-  const debounceTimerRef = useRef<number>();
-
-  useEffect(() => {
-    if (bounds) {
-      // Clear previous debounce timer
-      if (debounceTimerRef.current) {
-        window.clearTimeout(debounceTimerRef.current);
-      }
-
-      // Debounce bbox updates to reduce API calls during map movement
-      debounceTimerRef.current = window.setTimeout(() => {
-        // Expand the bbox by FETCH_AREA_MULTIPLIER to fetch more data than visible
-        // This reduces the need for refetching when the user pans slightly
-        const latDiff = bounds.getNorth() - bounds.getSouth();
-        const lngDiff = bounds.getEast() - bounds.getWest();
-        const latExpand = (latDiff * (FETCH_AREA_MULTIPLIER - 1)) / 2;
-        const lngExpand = (lngDiff * (FETCH_AREA_MULTIPLIER - 1)) / 2;
-
-        setBbox({
-          north: bounds.getNorth() + latExpand,
-          south: bounds.getSouth() - latExpand,
-          east: bounds.getEast() + lngExpand,
-          west: bounds.getWest() - lngExpand,
-        });
-      }, DEBOUNCE_DELAY);
-    }
-
-    // Cleanup on unmount
-    return () => {
-      if (debounceTimerRef.current) {
-        window.clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, [bounds]);
-
-  // Track zoom level
-  useEffect(() => {
-    const handleZoom = () => {
-      setCurrentZoom(map.getZoom());
-    };
-    map.on('zoomend', handleZoom);
-    return () => {
-      map.off('zoomend', handleZoom);
-    };
-  }, [map]);
-
-  // Only fetch data if zoomed in enough
-  const shouldFetch = visible && !!bbox && currentZoom >= MIN_ZOOM_LEVEL;
-
-  // Round bbox to grid for better cache hits
-  // Nearby map positions will share the same cache key
-  const roundedBbox = bbox ? {
-    north: Math.ceil(bbox.north * 20) / 20,   // Round to 0.05 degree grid
-    south: Math.floor(bbox.south * 20) / 20,
-    east: Math.ceil(bbox.east * 20) / 20,
-    west: Math.floor(bbox.west * 20) / 20,
-  } : undefined;
-
+export function FutureLandUseOverlay({ visible, filterTypes }: FutureLandUseOverlayProps) {
+  // Fetch entire county's Future Land Use data when overlay is enabled
+  // This loads 2000 features covering all of Volusia County
+  // No bbox = county-wide data, no debouncing needed, no zoom restrictions
   const { data, isLoading, error } = useQuery<ZoningResponse>({
-    queryKey: ['futureLandUse', roundedBbox, filterTypes, currentZoom],
-    queryFn: () => fetchFutureLandUse(bbox, filterTypes, 500),  // Use actual bbox for fetch
-    enabled: shouldFetch,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    queryKey: ['futureLandUse', 'countyWide', filterTypes],
+    queryFn: () => fetchFutureLandUse(undefined, filterTypes, 2000),  // No bbox = entire county
+    enabled: visible,
+    staleTime: 60 * 60 * 1000, // Cache for 1 hour (long-lived since county data doesn't change often)
+    cacheTime: 60 * 60 * 1000,
     retry: 2,
   });
 
@@ -91,20 +25,10 @@ export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLan
     return null;
   }
 
-  // Show zoom message if not zoomed in enough
-  if (currentZoom < MIN_ZOOM_LEVEL) {
-    return (
-      <div className="absolute top-20 right-4 bg-blue-50 border border-blue-400 text-blue-800 px-4 py-2 rounded shadow-lg z-[1000] max-w-xs">
-        <p className="text-sm font-medium">Zoom in to view Future Land Use</p>
-        <p className="text-xs mt-1">Shows planned development areas (better performance when zoomed in)</p>
-      </div>
-    );
-  }
-
   if (isLoading) {
     return (
       <div className="absolute top-20 right-4 bg-white px-4 py-2 rounded shadow-lg z-[1000]">
-        <p className="text-sm text-gray-600">Loading Future Land Use data...</p>
+        <p className="text-sm text-gray-600">Loading county-wide planned development data...</p>
       </div>
     );
   }
@@ -219,18 +143,11 @@ export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLan
   };
 
   return (
-    <>
-      <GeoJSON
-        key={JSON.stringify(data.features.map(f => f.id))}
-        data={data as any}
-        style={(feature) => getFLUStyle(feature as ZoningFeature)}
-        onEachFeature={onEachFeature}
-      />
-      {data.metadata && data.metadata.count >= 500 && (
-        <div className="absolute bottom-20 right-4 bg-yellow-50 border border-yellow-400 text-yellow-800 px-3 py-2 rounded shadow-lg z-[1000] text-xs">
-          <p>Showing 500 of {data.metadata.count}+ features. Zoom in for more detail.</p>
-        </div>
-      )}
-    </>
+    <GeoJSON
+      key={JSON.stringify(data.features.map(f => f.id))}
+      data={data as any}
+      style={(feature) => getFLUStyle(feature as ZoningFeature)}
+      onEachFeature={onEachFeature}
+    />
   );
 }

@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
-import { LatLngBounds } from 'leaflet';
+import React, { useState } from 'react';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import { useQuery } from '@tanstack/react-query';
 import { FLORIDA_CENTER, MAP_ZOOM } from '../../utils/constants';
 import { ReportMarker } from './ReportMarker';
@@ -10,30 +9,8 @@ import { WeekSlider } from './WeekSlider';
 import { getReports, getArchivedReports } from '../../services/api';
 import 'leaflet/dist/leaflet.css';
 
-// Component to track map bounds
-function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngBounds) => void }) {
-  const map = useMap();
-
-  useEffect(() => {
-    // Initial bounds
-    onBoundsChange(map.getBounds());
-  }, [map, onBoundsChange]);
-
-  useMapEvents({
-    moveend: () => {
-      onBoundsChange(map.getBounds());
-    },
-    zoomend: () => {
-      onBoundsChange(map.getBounds());
-    },
-  });
-
-  return null;
-}
-
 export function FloodMap() {
   const [futureLandUseEnabled, setFutureLandUseEnabled] = useState(false);
-  const [mapBounds, setMapBounds] = useState<LatLngBounds>();
   const [weekOffset, setWeekOffset] = useState(0);
 
   // Fetch reports (active or archived based on weekOffset)
@@ -58,10 +35,8 @@ export function FloodMap() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <MapBoundsTracker onBoundsChange={setMapBounds} />
-
         {/* Future Land Use Overlay (rendered below flood markers) */}
-        <FutureLandUseOverlay bounds={mapBounds} visible={futureLandUseEnabled} />
+        <FutureLandUseOverlay visible={futureLandUseEnabled} />
 
         {/* Flood Report Markers (rendered on top) */}
         {data?.features.map((feature) => (
