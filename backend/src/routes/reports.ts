@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { createReport, getActiveReports, deleteReport } from '../models/FloodReport';
+import { createReport, getActiveReports, deleteReport, getArchivedReports } from '../models/FloodReport';
 import { verifyToken, AuthRequest } from '../middleware/auth';
 import { rateLimitMiddleware } from '../middleware/rateLimit';
 import { validateLocation, validateSeverity } from '../middleware/validation';
@@ -115,6 +115,38 @@ router.delete('/:id', verifyToken, async (req: AuthRequest, res: Response) => {
     res.status(200).json({ message: 'Report deleted successfully' });
   } catch (error) {
     logger.error('Error deleting report', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get archived flood reports by week
+router.get('/archive', verifyToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const { north, south, east, west, weekOffset } = req.query;
+
+    let bbox;
+    if (north && south && east && west) {
+      bbox = {
+        north: parseFloat(north as string),
+        south: parseFloat(south as string),
+        east: parseFloat(east as string),
+        west: parseFloat(west as string),
+      };
+    }
+
+    const offset = weekOffset ? parseInt(weekOffset as string, 10) : 0;
+
+    // Validate week offset (max 52 weeks back)
+    if (offset < 0 || offset > 52) {
+      return res.status(400).json({ error: 'Invalid week offset (must be 0-52)' });
+    }
+
+    const reports = await getArchivedReports(offset, bbox);
+
+    logger.info('Archived reports fetched', { weekOffset: offset, count: reports.features.length });
+    res.json(reports);
+  } catch (error) {
+    logger.error('Error fetching archived reports', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

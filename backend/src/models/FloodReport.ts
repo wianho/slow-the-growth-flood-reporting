@@ -125,6 +125,62 @@ export async function deleteReport(reportId: string, deviceFingerprint: string):
   return true;
 }
 
+export async function getArchivedReports(
+  weekOffset: number = 0,
+  bbox?: { north: number; south: number; east: number; west: number }
+): Promise<GeoJSONFeatureCollection> {
+  // Calculate date range for the specified week
+  // weekOffset = 0 means current week, 1 means last week, 2 means 2 weeks ago, etc.
+  const now = new Date();
+  const weeksAgo = weekOffset * 7;
+  const endDate = new Date(now.getTime() - weeksAgo * 24 * 60 * 60 * 1000);
+  const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  let queryText = `
+    SELECT id, ST_AsText(location) as location, road_name, severity, created_at, confidence_score
+    FROM flood_reports_archive
+    WHERE created_at >= $1 AND created_at < $2
+  `;
+  const params: any[] = [startDate, endDate];
+
+  if (bbox) {
+    params.push(bbox.west, bbox.south, bbox.east, bbox.north);
+    queryText += ` AND ST_Within(
+      location::geometry,
+      ST_MakeEnvelope($${params.length - 3}, $${params.length - 2}, $${params.length - 1}, $${params.length}, 4326)
+    )`;
+  }
+
+  queryText += ' ORDER BY created_at DESC';
+
+  const result = await query(queryText, params);
+
+  const features = result.rows.map((row) => {
+    const [lng, lat] = row.location.match(/POINT\(([^ ]+) ([^ ]+)\)/).slice(1).map(parseFloat);
+
+    return {
+      type: 'Feature' as const,
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [lng, lat] as [number, number],
+      },
+      properties: {
+        id: row.id,
+        road_name: row.road_name,
+        severity: row.severity,
+        created_at: row.created_at.toISOString(),
+        confidence_score: row.confidence_score,
+        is_own_report: false, // Archived reports don't show ownership
+      },
+    };
+  });
+
+  return {
+    type: 'FeatureCollection',
+    features,
+  };
+}
+
 export async function archiveExpiredReports(): Promise<number> {
   const client = await query('BEGIN');
 

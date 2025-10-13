@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import { LatLngBounds } from 'leaflet';
+import { useQuery } from '@tanstack/react-query';
 import { FLORIDA_CENTER, MAP_ZOOM } from '../../utils/constants';
 import { ReportMarker } from './ReportMarker';
 import { FutureLandUseOverlay } from './FutureLandUseOverlay';
 import { LayerToggle } from './LayerToggle';
-import { useFloodReports } from '../../hooks/useFloodReports';
+import { WeekSlider } from './WeekSlider';
+import { getReports, getArchivedReports } from '../../services/api';
 import 'leaflet/dist/leaflet.css';
 
 // Component to track map bounds
@@ -30,9 +32,17 @@ function MapBoundsTracker({ onBoundsChange }: { onBoundsChange: (bounds: LatLngB
 }
 
 export function FloodMap() {
-  const { data, isLoading, error } = useFloodReports();
   const [futureLandUseEnabled, setFutureLandUseEnabled] = useState(false);
   const [mapBounds, setMapBounds] = useState<LatLngBounds>();
+  const [weekOffset, setWeekOffset] = useState(0);
+
+  // Fetch reports (active or archived based on weekOffset)
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['floodReports', weekOffset],
+    queryFn: () => weekOffset === 0 ? getReports() : getArchivedReports(weekOffset),
+    refetchInterval: weekOffset === 0 ? 60000 : undefined, // Only auto-refresh current week
+    staleTime: 30000,
+  });
 
   return (
     <div className="relative w-full h-[600px] rounded-lg overflow-hidden shadow-lg">
@@ -65,14 +75,17 @@ export function FloodMap() {
         futureLandUseEnabled={futureLandUseEnabled}
       />
 
+      {/* Week Slider */}
+      <WeekSlider weekOffset={weekOffset} onWeekChange={setWeekOffset} maxWeeks={12} />
+
       {isLoading && (
-        <div className="absolute bottom-4 left-4 bg-white px-4 py-2 rounded shadow-lg">
+        <div className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded shadow-lg z-[1001]">
           Loading reports...
         </div>
       )}
 
       {error && (
-        <div className="absolute bottom-4 left-4 bg-red-100 text-red-700 px-4 py-2 rounded shadow-lg">
+        <div className="absolute bottom-4 right-4 bg-red-100 text-red-700 px-4 py-2 rounded shadow-lg z-[1001]">
           Error loading reports
         </div>
       )}

@@ -53,6 +53,28 @@ export async function getReports(bbox?: {
   return response.data;
 }
 
+export async function getArchivedReports(
+  weekOffset: number = 0,
+  bbox?: {
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  }
+): Promise<GeoJSONFeatureCollection> {
+  const params: any = { weekOffset };
+
+  if (bbox) {
+    params.north = bbox.north;
+    params.south = bbox.south;
+    params.east = bbox.east;
+    params.west = bbox.west;
+  }
+
+  const response = await api.get('/reports/archive', { params });
+  return response.data;
+}
+
 export async function getNOAAAlerts(): Promise<NOAAAlert[]> {
   const response = await api.get('/data/noaa');
   return response.data.alerts;
