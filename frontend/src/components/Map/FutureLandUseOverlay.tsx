@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { GeoJSON, useMap } from 'react-leaflet';
 import { useQuery } from '@tanstack/react-query';
 import { fetchFutureLandUse, ZoningFeature, ZoningResponse } from '../../services/gis';
@@ -12,21 +12,48 @@ interface FutureLandUseOverlayProps {
 
 // Minimum zoom level to show overlay (performance optimization)
 const MIN_ZOOM_LEVEL = 11;
+// Expand fetch area by this factor to reduce refetching on pan
+const FETCH_AREA_MULTIPLIER = 1.5;
+// Debounce delay in ms
+const DEBOUNCE_DELAY = 500;
 
 export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLandUseOverlayProps) {
   const map = useMap();
   const [bbox, setBbox] = useState<{ north: number; south: number; east: number; west: number }>();
   const [currentZoom, setCurrentZoom] = useState(map.getZoom());
+  const debounceTimerRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (bounds) {
-      setBbox({
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest(),
-      });
+      // Clear previous debounce timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      // Debounce bbox updates to reduce API calls during map movement
+      debounceTimerRef.current = setTimeout(() => {
+        // Expand the bbox by FETCH_AREA_MULTIPLIER to fetch more data than visible
+        // This reduces the need for refetching when the user pans slightly
+        const latDiff = bounds.getNorth() - bounds.getSouth();
+        const lngDiff = bounds.getEast() - bounds.getWest();
+        const latExpand = (latDiff * (FETCH_AREA_MULTIPLIER - 1)) / 2;
+        const lngExpand = (lngDiff * (FETCH_AREA_MULTIPLIER - 1)) / 2;
+
+        setBbox({
+          north: bounds.getNorth() + latExpand,
+          south: bounds.getSouth() - latExpand,
+          east: bounds.getEast() + lngExpand,
+          west: bounds.getWest() - lngExpand,
+        });
+      }, DEBOUNCE_DELAY);
     }
+
+    // Cleanup on unmount
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [bounds]);
 
   // Track zoom level
@@ -43,9 +70,18 @@ export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLan
   // Only fetch data if zoomed in enough
   const shouldFetch = visible && !!bbox && currentZoom >= MIN_ZOOM_LEVEL;
 
+  // Round bbox to grid for better cache hits
+  // Nearby map positions will share the same cache key
+  const roundedBbox = bbox ? {
+    north: Math.ceil(bbox.north * 20) / 20,   // Round to 0.05 degree grid
+    south: Math.floor(bbox.south * 20) / 20,
+    east: Math.ceil(bbox.east * 20) / 20,
+    west: Math.floor(bbox.west * 20) / 20,
+  } : undefined;
+
   const { data, isLoading, error } = useQuery<ZoningResponse>({
-    queryKey: ['futureLandUse', bbox, filterTypes, currentZoom],
-    queryFn: () => fetchFutureLandUse(bbox, filterTypes, 500),
+    queryKey: ['futureLandUse', roundedBbox, filterTypes, currentZoom],
+    queryFn: () => fetchFutureLandUse(bbox, filterTypes, 500),  // Use actual bbox for fetch
     enabled: shouldFetch,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retry: 2,
