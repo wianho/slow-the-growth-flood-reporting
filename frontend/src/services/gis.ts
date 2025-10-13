@@ -1,13 +1,23 @@
 import { API_BASE_URL } from '../utils/constants';
 
 export interface ZoningProperties {
-  GENL_ZCODE: string;
-  GenericDescription: string;
+  // Current zoning fields
+  GENL_ZCODE?: string;
+  GenericDescription?: string;
   OriginalZoningCode?: string;
   Acres?: number;
   CityName?: string;
   Z_DESCRIP?: string;
   JUR_ZONING?: string;
+
+  // Future Land Use fields
+  LUCODE?: string;
+  LUNAME?: string;
+  AMEND?: string;
+  PLANNED_COMM?: string;
+  ACTIVITY_CENTER?: string;
+  LOCAL_PLAN_AREAS?: string;
+  last_edited_date?: string;
 }
 
 export interface ZoningFeature {
