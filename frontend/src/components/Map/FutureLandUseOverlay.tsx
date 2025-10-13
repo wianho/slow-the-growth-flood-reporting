@@ -17,7 +17,7 @@ export function FutureLandUseOverlay({ visible, filterTypes }: FutureLandUseOver
     queryFn: () => fetchFutureLandUse(undefined, filterTypes, 2000),  // No bbox = entire county
     enabled: visible,
     staleTime: 60 * 60 * 1000, // Cache for 1 hour (long-lived since county data doesn't change often)
-    cacheTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000, // Renamed from cacheTime in React Query v5
     retry: 2,
   });
 
@@ -41,7 +41,7 @@ export function FutureLandUseOverlay({ visible, filterTypes }: FutureLandUseOver
     );
   }
 
-  if (!data || data.features.length === 0) {
+  if (!data || !data.features || data.features.length === 0) {
     return null;
   }
 
