@@ -27,10 +27,10 @@ export function WeekSlider({ weekOffset, onWeekChange, maxWeeks = 12 }: WeekSlid
   };
 
   return (
-    <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg z-[1000] p-4 max-w-md">
-      <div className="space-y-3">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg z-[1000] p-3 sm:p-4 max-w-[90vw] sm:max-w-md">
+      <div className="space-y-2 sm:space-y-3">
+        {/* Header - Hidden on mobile */}
+        <div className="hidden sm:flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-700">Time Travel</h3>
             <p className="text-xs text-gray-500">View reports from past weeks</p>
@@ -39,12 +39,12 @@ export function WeekSlider({ weekOffset, onWeekChange, maxWeeks = 12 }: WeekSlid
 
         {/* Week Label */}
         <div className="text-center">
-          <p className="text-lg font-bold text-primary-600">{getWeekLabel(weekOffset)}</p>
+          <p className="text-sm sm:text-lg font-bold text-primary-600">{getWeekLabel(weekOffset)}</p>
           <p className="text-xs text-gray-500">{getWeekDateRange(weekOffset)}</p>
         </div>
 
         {/* Slider */}
-        <div className="px-2">
+        <div className="px-1 sm:px-2">
           <input
             type="range"
             min="0"
@@ -59,34 +59,36 @@ export function WeekSlider({ weekOffset, onWeekChange, maxWeeks = 12 }: WeekSlid
           </div>
         </div>
 
-        {/* Quick Jump Buttons */}
-        <div className="flex gap-2 justify-center">
+        {/* Quick Jump Buttons - Smaller on mobile */}
+        <div className="flex gap-1 sm:gap-2 justify-center flex-wrap">
           <button
             onClick={() => onWeekChange(0)}
             disabled={weekOffset === 0}
-            className="px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 rounded hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-2 sm:px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 rounded hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            This Week
+            Now
           </button>
           <button
             onClick={() => onWeekChange(1)}
             disabled={weekOffset === 1}
-            className="px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 rounded hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-2 sm:px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 rounded hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Last Week
           </button>
           <button
             onClick={() => onWeekChange(4)}
             disabled={weekOffset === 4}
-            className="px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 rounded hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-2 sm:px-3 py-1 text-xs font-medium text-primary-700 bg-primary-50 rounded hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             1 Month
           </button>
         </div>
 
+        {/* Archive message - More compact on mobile */}
         {weekOffset > 0 && (
-          <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
-            📅 Viewing archived reports from {getWeekDateRange(weekOffset)}
+          <div className="mt-1 sm:mt-2 p-1.5 sm:p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+            <span className="hidden sm:inline">📅 Viewing archived reports from </span>
+            <span className="sm:hidden">📅 </span>{getWeekDateRange(weekOffset)}
           </div>
         )}
       </div>
