@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { isPointInBounds } from '../utils/geo';
+import { isPointInBounds, isPointInReportingArea } from '../utils/geo';
 import { generateToken } from '../middleware/auth';
 import logger from '../utils/logger';
 
@@ -39,17 +39,17 @@ router.post('/verify-location', async (req: Request, res: Response) => {
     // Generate JWT token
     const token = generateToken(deviceFingerprint);
 
-    // Check if location is specifically within Volusia County
-    const inVolusia = isPointInBounds(latitude, longitude);
+    // Check if location is within any reporting county (Volusia, Palm Beach, etc.)
+    const inReportingArea = isPointInReportingArea(latitude, longitude);
 
     logger.info('Location verified', {
       deviceFingerprint: deviceFingerprint.substring(0, 8) + '...',
-      inVolusia,
+      inReportingArea,
     });
 
     res.json({
       verified: true,
-      inVolusia,
+      inVolusia: inReportingArea, // Keep 'inVolusia' key for backwards compatibility
       token,
       expiresIn: '24h',
     });
