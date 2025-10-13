@@ -11,6 +11,7 @@ import reportsRouter from './routes/reports';
 import dataRouter from './routes/data';
 import verificationRouter from './routes/verification';
 import adminRouter from './routes/admin';
+import gisRouter from './routes/gis';
 import logger from './utils/logger';
 
 const app = express();
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 app.use('/api/reports', reportsRouter);
 app.use('/api/data', dataRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/gis', gisRouter);
 app.use('/api', verificationRouter);
 
 // Health check
