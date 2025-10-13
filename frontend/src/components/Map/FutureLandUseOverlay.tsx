@@ -21,7 +21,7 @@ export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLan
   const map = useMap();
   const [bbox, setBbox] = useState<{ north: number; south: number; east: number; west: number }>();
   const [currentZoom, setCurrentZoom] = useState(map.getZoom());
-  const debounceTimerRef = useRef<NodeJS.Timeout>();
+  const debounceTimerRef = useRef<number>();
 
   useEffect(() => {
     if (bounds) {
