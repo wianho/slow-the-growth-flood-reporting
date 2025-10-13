@@ -81,7 +81,7 @@ export function ZoningOverlay({ bounds, visible, filterTypes }: ZoningOverlayPro
   };
 
   // Event handlers
-  const onEachFeature = (feature: ZoningFeature, layer: any) => {
+  const onEachFeature = (feature: any, layer: any) => {
     // Highlight on hover
     layer.on({
       mouseover: (e: any) => {

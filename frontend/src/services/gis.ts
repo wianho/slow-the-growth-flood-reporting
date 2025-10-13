@@ -12,7 +12,7 @@ export interface ZoningProperties {
 
 export interface ZoningFeature {
   type: 'Feature';
-  id: string | number;
+  id?: string | number;
   geometry: {
     type: 'Polygon' | 'MultiPolygon';
     coordinates: number[][][] | number[][][][];
