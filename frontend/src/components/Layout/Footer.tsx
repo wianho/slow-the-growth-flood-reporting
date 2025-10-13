@@ -16,7 +16,7 @@ export function Footer() {
           </p>
           <div className="mt-4 text-xs text-gray-400">
             <a
-              href="https://github.com/slow-the-growth"
+              href="https://github.com/wianho/slow-the-growth-flood-reporting"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white transition-colors"
