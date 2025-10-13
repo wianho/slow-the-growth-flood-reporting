@@ -61,8 +61,18 @@ export function ReportForm() {
 
   if (!isInVolusia) {
     return (
-      <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded">
-        You must be in Volusia County to submit a flood report.
+      <div className="bg-blue-50 border border-blue-400 text-blue-800 px-4 py-3 rounded">
+        <p className="font-bold mb-2">📍 Reporting Location Required</p>
+        <p className="text-sm">
+          Reports can only be submitted from participating counties:
+        </p>
+        <ul className="text-sm mt-2 ml-4 list-disc">
+          <li><strong>Volusia County</strong></li>
+          <li><strong>Palm Beach County</strong> (including Wellington)</li>
+        </ul>
+        <p className="text-sm mt-2">
+          The map displays flood data statewide for public awareness. Want your county to participate? Contact us!
+        </p>
       </div>
     );
   }

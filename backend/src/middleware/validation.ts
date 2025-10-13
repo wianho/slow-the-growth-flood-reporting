@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { isPointInBounds } from '../utils/geo';
+import { isPointInReportingArea, getCountyName } from '../utils/geo';
 
 export function validateLocation(req: Request, res: Response, next: NextFunction) {
   const { latitude, longitude } = req.body;
@@ -25,10 +25,10 @@ export function validateLocation(req: Request, res: Response, next: NextFunction
     });
   }
 
-  if (!isPointInBounds(latitude, longitude)) {
+  if (!isPointInReportingArea(latitude, longitude)) {
     return res.status(400).json({
-      error: 'Location outside Volusia County',
-      details: 'Reports can only be submitted from within Volusia County',
+      error: 'Location outside reporting area',
+      details: 'Reports can only be submitted from participating counties (Volusia and Palm Beach). The map displays statewide data for public awareness.',
     });
   }
 

@@ -1,10 +1,10 @@
 import { BoundingBox } from '../types';
-import { VOLUSIA_BOUNDS } from './constants';
+import { REPORTING_COUNTIES, FLORIDA_BOUNDS } from './constants';
 
 export function isPointInBounds(
   latitude: number,
   longitude: number,
-  bounds: BoundingBox = VOLUSIA_BOUNDS
+  bounds: BoundingBox
 ): boolean {
   return (
     latitude >= bounds.south &&
@@ -12,6 +12,33 @@ export function isPointInBounds(
     longitude >= bounds.west &&
     longitude <= bounds.east
   );
+}
+
+export function isPointInReportingArea(latitude: number, longitude: number): boolean {
+  // Check if point is in ANY of the reporting counties
+  return Object.values(REPORTING_COUNTIES).some(bounds =>
+    isPointInBounds(latitude, longitude, bounds)
+  );
+}
+
+export function getCountyName(latitude: number, longitude: number): string | null {
+  // Return the name of the county the point is in
+  for (const [name, bounds] of Object.entries(REPORTING_COUNTIES)) {
+    if (isPointInBounds(latitude, longitude, bounds)) {
+      // Convert camelCase to readable name
+      return name
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+    }
+  }
+  return null;
+}
+
+// Legacy aliases for backward compatibility
+export const isPointInVolusia = isPointInReportingArea;
+export function isPointInFlorida(latitude: number, longitude: number): boolean {
+  return isPointInBounds(latitude, longitude, FLORIDA_BOUNDS);
 }
 
 export function getNextWednesdayAt5AM(): Date {

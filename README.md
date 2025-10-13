@@ -1,14 +1,18 @@
 # Slow the Growth - Flood Reporting
 
-> Community-driven flood reporting system for Volusia County, Florida
+> Community-driven flood reporting system with statewide visibility and multi-county reporting
 
 🌐 **Live Application**: [https://stgfloods386.from-fl.com](https://stgfloods386.from-fl.com)
+
+📖 **Access Model**: Public viewing statewide · Reporting available in Volusia & Palm Beach counties
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Overview
 
-**Slow the Growth** is an open-source Progressive Web App (PWA) that empowers Volusia County residents to anonymously report flooding conditions. The system features location verification, rate limiting, confidence scoring, and integration with NOAA, USGS, and Volusia County GIS data.
+**Slow the Growth** is an open-source Progressive Web App (PWA) that tracks flooding in participating Florida counties while displaying data statewide for public awareness. Residents of Volusia and Palm Beach counties (including Wellington) can anonymously report flooding conditions to document the impact of rapid development. The system features location verification, rate limiting, confidence scoring, and integration with NOAA and USGS data sources.
+
+**Why this approach?** By displaying the map statewide, we raise awareness about flooding issues across Florida while maintaining data quality through county-specific reporting. New counties can join the program as advocacy efforts expand.
 
 ### Mission
 
@@ -16,13 +20,13 @@ To empower communities with real-time flood data, promoting informed decision-ma
 
 ## Features
 
-- 📍 **Anonymous Reporting** - Submit flood reports with device fingerprinting (no personal data stored)
-- 🗺️ **Interactive Map** - View all active flood reports on an OpenStreetMap-based map
-- 🎯 **Location Verification** - GPS-based verification ensures reports are from Volusia County
+- 📍 **Anonymous Reporting** - Submit flood reports from participating counties (Volusia, Palm Beach) with device fingerprinting (no personal data stored)
+- 🗺️ **Interactive Statewide Map** - View flood reports from all counties on a Florida-wide map for context
+- 🎯 **Location Verification** - GPS-based verification ensures reports are from participating county residents
 - ⏱️ **Rate Limiting** - 3 reports per device per day to prevent spam
 - 🔄 **Confidence Scoring** - Multiple reports from the same area increase confidence
 - 📅 **Weekly Rotation** - Data automatically archives every Wednesday at 5am EST
-- 🌊 **USGS Integration** - Real-time stream gauge data from Volusia County waterways
+- 🌊 **USGS Integration** - Real-time stream gauge data from major Florida waterways
 - ⚠️ **NOAA Alerts** - Live weather alerts and flood warnings
 - 📱 **PWA Support** - Install on mobile devices for offline access
 

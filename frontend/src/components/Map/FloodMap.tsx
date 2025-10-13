@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
-import { VOLUSIA_CENTER, MAP_ZOOM } from '../../utils/constants';
+import { FLORIDA_CENTER, MAP_ZOOM } from '../../utils/constants';
 import { ReportMarker } from './ReportMarker';
 import { useFloodReports } from '../../hooks/useFloodReports';
 import 'leaflet/dist/leaflet.css';
@@ -11,7 +11,7 @@ export function FloodMap() {
   return (
     <div className="relative w-full h-[600px] rounded-lg overflow-hidden shadow-lg">
       <MapContainer
-        center={VOLUSIA_CENTER}
+        center={FLORIDA_CENTER}
         zoom={MAP_ZOOM.initial}
         minZoom={MAP_ZOOM.min}
         maxZoom={MAP_ZOOM.max}
