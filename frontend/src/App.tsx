@@ -11,6 +11,7 @@ import { StatsPanel } from './components/Dashboard/StatsPanel';
 import { WeatherWidget } from './components/Dashboard/WeatherWidget';
 import { AdminLogin } from './components/Admin/AdminLogin';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
+import { PrivacyPolicy } from './components/Pages/PrivacyPolicy';
 import { useAppStore } from './store/appStore';
 import { useGeolocation } from './hooks/useGeolocation';
 import { getDeviceFingerprint } from './services/deviceFingerprint';
@@ -122,6 +123,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
