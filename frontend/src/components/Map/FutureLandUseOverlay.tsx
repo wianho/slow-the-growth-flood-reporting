@@ -14,8 +14,8 @@ interface FutureLandUseOverlayProps {
 const MIN_ZOOM_LEVEL = 11;
 // Expand fetch area by this factor to reduce refetching on pan
 const FETCH_AREA_MULTIPLIER = 1.5;
-// Debounce delay in ms
-const DEBOUNCE_DELAY = 500;
+// Debounce delay in ms (reduced for better responsiveness)
+const DEBOUNCE_DELAY = 250;
 
 export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLandUseOverlayProps) {
   const map = useMap();
@@ -27,11 +27,11 @@ export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLan
     if (bounds) {
       // Clear previous debounce timer
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+        window.clearTimeout(debounceTimerRef.current);
       }
 
       // Debounce bbox updates to reduce API calls during map movement
-      debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = window.setTimeout(() => {
         // Expand the bbox by FETCH_AREA_MULTIPLIER to fetch more data than visible
         // This reduces the need for refetching when the user pans slightly
         const latDiff = bounds.getNorth() - bounds.getSouth();
@@ -51,7 +51,7 @@ export function FutureLandUseOverlay({ bounds, visible, filterTypes }: FutureLan
     // Cleanup on unmount
     return () => {
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+        window.clearTimeout(debounceTimerRef.current);
       }
     };
   }, [bounds]);
