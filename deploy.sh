@@ -4,8 +4,8 @@ set -e
 # Deployment script with rollback support
 # Usage: ./deploy.sh [--rollback]
 
-DEPLOY_DIR="/home/slowgrowth/flood-reporting"
-BACKUP_DIR="/home/slowgrowth/backups"
+DEPLOY_DIR="/root/slow-the-growth"
+BACKUP_DIR="/root/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 
 if [ "$1" = "--rollback" ]; then
@@ -27,7 +27,7 @@ if [ "$1" = "--rollback" ]; then
 
   # Restore code
   tar -xzf $LATEST_BACKUP -C /tmp/
-  rsync -av --delete /tmp/flood-reporting/ $DEPLOY_DIR/
+  rsync -av --delete /tmp/slow-the-growth/ $DEPLOY_DIR/
 
   # Restart services
   docker compose -f docker-compose.prod.yml up -d
@@ -43,17 +43,17 @@ mkdir -p $BACKUP_DIR
 
 # Backup current deployment
 echo "📦 Creating backup..."
-cd /home/slowgrowth
-tar -czf $BACKUP_DIR/deployment_$DATE.tar.gz flood-reporting/ \
-  --exclude='flood-reporting/node_modules' \
-  --exclude='flood-reporting/.git' \
-  --exclude='flood-reporting/backend/node_modules' \
-  --exclude='flood-reporting/frontend/node_modules'
+cd /root
+tar -czf $BACKUP_DIR/deployment_$DATE.tar.gz slow-the-growth/ \
+  --exclude='slow-the-growth/node_modules' \
+  --exclude='slow-the-growth/.git' \
+  --exclude='slow-the-growth/backend/node_modules' \
+  --exclude='slow-the-growth/frontend/node_modules'
 
 # Backup database
 echo "💾 Backing up database..."
 docker compose -f $DEPLOY_DIR/docker-compose.prod.yml exec -T postgres \
-  pg_dump -U slowgrowth slow_growth_flood | \
+  pg_dump -U postgres slow_growth_flood | \
   gzip > $BACKUP_DIR/db_backup_$DATE.sql.gz
 
 # Keep only last 5 backups

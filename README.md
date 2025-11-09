@@ -32,6 +32,8 @@ To empower communities with real-time flood data, promoting informed decision-ma
 
 ## Quick Start
 
+### Local Development
+
 ```bash
 # Clone and setup
 git clone https://github.com/wianho/slow-the-growth-flood-reporting.git
@@ -49,7 +51,17 @@ cd frontend && npm install && npm run dev
 # Access at http://localhost:5173
 ```
 
-See full installation guide and deployment options in the sections below.
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed development guide.
+
+### Production Deployment
+
+Deploy to production in one command:
+
+```bash
+ssh root@178.156.151.63 "cd /root/slow-the-growth && git pull && docker compose -f docker-compose.prod.yml build frontend && docker compose -f docker-compose.prod.yml up -d"
+```
+
+See [QUICK_DEPLOY.md](QUICK_DEPLOY.md) for fast deployment guide or [DEPLOYMENT_HETZNER.md](DEPLOYMENT_HETZNER.md) for comprehensive setup.
 
 ## Privacy & Security
 
