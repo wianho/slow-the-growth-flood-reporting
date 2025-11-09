@@ -53,6 +53,8 @@ cd frontend && npm install && npm run dev
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed development guide.
 
+**Testing outside participating counties?** See [LOCATION_WORKAROUND.md](LOCATION_WORKAROUND.md) for location spoofing guide.
+
 ### Production Deployment
 
 Deploy to production in one command:
