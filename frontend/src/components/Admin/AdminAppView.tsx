@@ -36,6 +36,9 @@ export function AdminAppView() {
 
     // Initialize with mocked Volusia location
     const initializeAdminView = async () => {
+      // Clear any old expired auth tokens from previous sessions
+      localStorage.removeItem('auth_token');
+
       const fingerprint = await getDeviceFingerprint();
       setDeviceFingerprint(fingerprint);
       setUserLocation(MOCK_VOLUSIA_LOCATION);
