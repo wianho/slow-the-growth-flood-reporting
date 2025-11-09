@@ -124,7 +124,13 @@ export function AdminDashboard() {
               <h1 className="text-2xl font-bold">Admin Dashboard</h1>
               <p className="text-gray-600 text-sm">Logged in as: {adminUsername}</p>
             </div>
-            <div className="space-x-2">
+            <div className="flex gap-2">
+              <a
+                href="/admin/app-view"
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 font-medium"
+              >
+                🛡️ View App as Volusia User
+              </a>
               <a
                 href="/"
                 className="px-4 py-2 text-blue-600 hover:text-blue-800 inline-block"

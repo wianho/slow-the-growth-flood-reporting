@@ -11,6 +11,7 @@ import { StatsPanel } from './components/Dashboard/StatsPanel';
 import { WeatherWidget } from './components/Dashboard/WeatherWidget';
 import { AdminLogin } from './components/Admin/AdminLogin';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
+import { AdminAppView } from './components/Admin/AdminAppView';
 import { PrivacyPolicy } from './components/Pages/PrivacyPolicy';
 import { useAppStore } from './store/appStore';
 import { useGeolocation } from './hooks/useGeolocation';
@@ -126,6 +127,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/app-view" element={<AdminAppView />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
