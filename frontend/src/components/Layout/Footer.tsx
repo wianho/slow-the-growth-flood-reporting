@@ -5,6 +5,16 @@ export function Footer() {
     <footer className="bg-gray-800 text-white py-6 mt-auto">
       <div className="container mx-auto px-4">
         <div className="text-center">
+          <div className="mb-6 flex justify-center">
+            <a
+              href="https://wianho.github.io/volusia-flood-advocacy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white hover:text-yellow-300 transition-all px-6 py-3 rounded-lg bg-primary-600 hover:bg-primary-500 shadow-lg hover:shadow-xl text-lg font-bold italic underline"
+            >
+              WANT TO EMAIL YOUR REPRESENTATIVES? CLICK TO EMAIL HERE.
+            </a>
+          </div>
           <p className="text-sm">
             Slow the Growth - Open Source Community Project
           </p>
