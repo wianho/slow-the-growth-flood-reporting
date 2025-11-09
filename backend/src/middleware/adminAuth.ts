@@ -11,6 +11,15 @@ export interface AdminAuthRequest extends Request {
 }
 
 export async function verifyAdminCredentials(username: string, password: string): Promise<boolean> {
+  // DEV MODE: Simple test account for local development
+  if (process.env.NODE_ENV === 'development') {
+    if (username === 'admin' && password === 'admin') {
+      console.log('✅ Dev mode: Test admin login successful');
+      return true;
+    }
+  }
+
+  // PRODUCTION: Use environment variables
   if (username !== ADMIN_USERNAME) {
     return false;
   }
