@@ -66,8 +66,8 @@ router.post(
   }
 );
 
-// Get active flood reports
-router.get('/', verifyToken, async (req: AuthRequest, res: Response) => {
+// Get active flood reports (PUBLIC - no auth required)
+router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { north, south, east, west, minConfidence } = req.query;
 
