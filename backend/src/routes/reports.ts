@@ -119,8 +119,8 @@ router.delete('/:id', verifyToken, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// Get archived flood reports by week
-router.get('/archive', verifyToken, async (req: AuthRequest, res: Response) => {
+// Get archived flood reports by week (PUBLIC - no auth required)
+router.get('/archive', async (req: AuthRequest, res: Response) => {
   try {
     const { north, south, east, west, weekOffset } = req.query;
 
