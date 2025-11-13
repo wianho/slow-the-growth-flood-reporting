@@ -21,7 +21,7 @@ export function Header() {
               href="https://wianho.github.io/volusia-flood-advocacy/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:text-yellow-300 transition-all px-6 py-3 rounded-lg bg-primary-600 hover:bg-primary-500 shadow-lg hover:shadow-xl text-lg font-bold italic underline"
+              className="text-white hover:text-yellow-300 transition-all px-3 py-2 sm:px-6 sm:py-3 rounded-lg bg-primary-600 hover:bg-primary-500 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base lg:text-lg font-bold italic underline text-center leading-tight"
             >
               WANT TO EMAIL YOUR REPRESENTATIVES? CLICK TO EMAIL HERE.
             </a>
