@@ -54,9 +54,6 @@ export function LayerToggle({ onFutureLandUseToggle, futureLandUseEnabled }: Lay
                 <p className="text-gray-600">
                   Shows <strong>Future Land Use</strong> - where development is PLANNED
                 </p>
-                <p className="text-blue-600 font-medium">
-                  Perfect for advocacy!
-                </p>
                 <p className="text-gray-500 hidden sm:block">
                   💡 Zoom in (level 11+) to see detailed polygons
                 </p>

@@ -135,7 +135,7 @@ export function FutureLandUseOverlay({ visible, filterTypes }: FutureLandUseOver
           ${props.last_edited_date ? `<p class="mt-2 text-xs text-gray-600"><strong>Last Updated:</strong> ${new Date(props.last_edited_date).toLocaleDateString()}</p>` : ''}
         </div>
         <p class="mt-2 text-xs italic text-gray-600">
-          This shows PLANNED land use, not current zoning. Perfect for advocacy!
+          This shows PLANNED land use, not current zoning.
         </p>
       </div>
     `;
